@@ -42,10 +42,10 @@ AgentFlow Dashboard provides a sophisticated interface for monitoring and managi
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/agentflow-dashboard.git
+git clone https://github.com/nxdun/ai-agents-dashboard
 
 # Navigate to project directory
-cd agentflow-dashboard
+cd ai-agents-dashboard
 
 # Install dependencies
 npm install
@@ -189,5 +189,5 @@ MIT License
 ---
 
 <div align="center">
-  <p>Made with ❤️ by the AgentFlow Team</p>
+  <p>Made with ❤️ by the AgentFlow (@nxdun)</p>
 </div>
