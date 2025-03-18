@@ -1,144 +1,90 @@
-import { useLocation, Link } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
-import { 
-  HomeIcon, 
-  HeartPulseIcon, 
-  CpuIcon, 
-  UsersIcon, 
-  GitBranchIcon, 
-  ActivityIcon,
-  XIcon,
-  ChevronRightIcon
-} from 'lucide-react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { useDarkMode } from '../context/DarkModeContext';
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+// Import icons from react-icons
+import { 
+  MdDashboard, 
+  MdWorkspaces, 
+  MdOutlineHealthAndSafety, 
+  MdPerson,
+  MdAccessTime,
+  MdCategory  // Using MdCategory as a replacement for MdModel
+} from 'react-icons/md';
+
+const Sidebar = ({ isOpen }) => {
   const { darkMode } = useDarkMode();
-  const location = useLocation();
-  const sidebarRef = useRef(null);
-  
-  const navItems = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon },
-    { name: 'Models', href: '/models', icon: CpuIcon },
-    { name: 'Agents', href: '/agents', icon: UsersIcon },
-    { name: 'Workflows', href: '/workflows', icon: GitBranchIcon },
-    { name: 'Activities', href: '/activities', icon: ActivityIcon },
-    { name: 'Health', href: '/health', icon: HeartPulseIcon },
+
+  const menuItems = [
+    { path: '/', name: 'Dashboard', icon: <MdDashboard className="text-xl" /> },
+    { path: '/workflows', name: 'Workflows', icon: <MdWorkspaces className="text-xl" /> },
+    { path: '/health', name: 'Health', icon: <MdOutlineHealthAndSafety className="text-xl" /> },
+    { path: '/models', name: 'Models', icon: <MdCategory className="text-xl" /> },  // Changed to MdCategory
+    { path: '/agents', name: 'Agents', icon: <MdPerson className="text-xl" /> },
+    { path: '/activities', name: 'Activities', icon: <MdAccessTime className="text-xl" /> },
   ];
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-  
-  // Close sidebar when clicking outside (mobile)
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setSidebarOpen(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [sidebarOpen, setSidebarOpen]);
-
-  // Lock body scroll when sidebar is open on mobile
-  useEffect(() => {
-    if (sidebarOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [sidebarOpen]);
-
   return (
-    <>
-      {/* Mobile sidebar overlay */}
-      <div 
-        className={`lg:hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-40 backdrop-blur-sm transition-opacity duration-300
-          ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        aria-hidden="true"
-      />
-
-      {/* Mobile sidebar */}
-      <div 
-        ref={sidebarRef}
-        className={`lg:hidden fixed inset-y-0 left-0 w-64 bg-gray-900 dark:bg-gray-900 z-50 transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'}`}
+    <div 
+      className={`${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } transform fixed top-0 left-0 z-30 h-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto`}
+    >
+        <div 
+        className={`h-full w-64 overflow-y-auto shadow-lg ${
+          darkMode 
+            ? 'bg-gradient-to-b from-gray-800 to-gray-900 text-gray-100' 
+            : 'bg-gradient-to-b from-white to-gray-50 text-gray-800'
+        } transition-all duration-200 ease-in-out`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <span className="text-xl text-white font-semibold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            AgentFlow
-          </span>
-          <button 
-            className="text-gray-300 hover:text-white transition-colors"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close sidebar"
-          >
-            <XIcon className="h-6 w-6" />
-          </button>
-        </div>
-        <nav className="mt-5 px-2 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={`group flex items-center px-2 py-3 text-base font-medium rounded-md transition-all duration-200
-                ${isActive(item.href)
-                  ? 'bg-gray-800 text-primary-400 border-l-4 border-primary-400 pl-2'
-                  : 'text-gray-300 hover:bg-gray-800 hover:text-primary-300'
-                }`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <item.icon className={`mr-4 h-6 w-6 transition-colors
-                ${isActive(item.href) ? 'text-primary-400' : 'text-gray-400 group-hover:text-gray-300'}
-              `} />
-              {item.name}
-              {isActive(item.href) && (
-                <ChevronRightIcon className="ml-auto h-5 w-5 text-primary-400 animate-pulse-slow" />
-              )}
-            </Link>
-          ))}
-        </nav>
-      </div>
+        <div className="px-4 py-6">
+          <div className="mb-8">
+            <h2 className={`text-xl font-semibold mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+              AI Agents
+            </h2>
+            <div className={`h-1 w-12 rounded-full ${darkMode ? 'bg-blue-500' : 'bg-indigo-600'}`}></div>
+          </div>
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-64 bg-gray-900 dark:bg-gray-900">
-          <div className="flex items-center h-16 px-4 border-b border-gray-700">
-            <span className="text-xl text-white font-semibold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              AgentFlow
-            </span>
-          </div>
-          <div className="flex-1 flex flex-col overflow-y-auto">
-            <nav className="flex-1 px-2 py-4 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-3 text-base font-medium rounded-md transition-all duration-200
-                    ${isActive(item.href)
-                      ? 'bg-gray-800 text-primary-400 border-l-4 border-primary-400 pl-2'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-primary-300'
-                    }`}
-                >
-                  <item.icon className={`mr-4 h-6 w-6 transition-colors
-                    ${isActive(item.href) ? 'text-primary-400' : 'text-gray-400 group-hover:text-gray-300'}
-                  `} />
-                  {item.name}
-                  {isActive(item.href) && (
-                    <ChevronRightIcon className="ml-auto h-5 w-5 text-primary-400 animate-pulse-slow" />
-                  )}
-                </Link>
+          <nav>
+            <ul className="space-y-1">
+              {menuItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    end={item.path === '/'}
+                    className={({ isActive }) => 
+                      `flex items-center px-4 py-3 rounded-lg group transition-all duration-200
+                      ${isActive 
+                        ? (darkMode 
+                            ? 'bg-gray-700/50 text-blue-400 font-medium shadow-inner' 
+                            : 'bg-indigo-50 text-indigo-700 font-medium shadow-sm')
+                        : ''
+                      } 
+                      ${darkMode 
+                        ? 'hover:bg-gray-700/30' 
+                        : 'hover:bg-gray-100'
+                      }`
+                    }
+                  >
+                    <div className={`mr-3 transition-transform duration-200 group-hover:scale-110 ${darkMode ? 'text-blue-400' : 'text-indigo-600'}`}>
+                      {item.icon}
+                    </div>
+                    <span className="text-sm font-medium">{item.name}</span>
+                  </NavLink>
+                </li>
               ))}
-            </nav>
+            </ul>
+          </nav>
+        </div>
+        
+        <div className={`absolute bottom-0 left-0 right-0 p-4 ${darkMode ? 'bg-gray-900/80' : 'bg-gray-50/80'} backdrop-blur-sm`}>
+          <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <p>© {new Date().getFullYear()} AI Agents Dashboard</p>
+            <p>v1.0.0</p>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
