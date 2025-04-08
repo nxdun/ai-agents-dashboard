@@ -16,18 +16,19 @@ import { Brain, Target, Home, FileCog, Goal, ServerCrash, Settings, Command, Zap
 const Sidebar = ({ isOpen }) => {
   const { darkMode } = useDarkMode();
 
-  const menuItems = [
+  // Active menu items
+  const activeMenuItems = [
     { path: '/', name: 'Dashboard', icon: <MdDashboard className="text-xl" /> },
-    { path: '/workflows', name: 'Workflows', icon: <MdWorkspaces className="text-xl" /> },
     { path: '/health', name: 'Health', icon: <MdOutlineHealthAndSafety className="text-xl" /> },
     { path: '/models', name: 'Models', icon: <MdCategory className="text-xl" /> },
+    { path: '/goaltotask', name: 'Goal to Task', icon: <Target className="text-xl" /> },
+  ];
+  
+  // Inactive (grayed out) menu items
+  const inactiveMenuItems = [
+    { path: '/workflows', name: 'Workflows', icon: <MdWorkspaces className="text-xl" /> },
     { path: '/activities', name: 'Activities', icon: <MdAccessTime className="text-xl" /> },
     { path: '/agents', name: 'Agents', icon: <MdPerson className="text-xl" /> },
-    { path: '/goaltotask', name: 'Goal to Task', icon: <Target className="text-xl" /> }, // Updated Goal to Task
-  ];
-
-  const navigation = [
-    { name: 'Models', href: '/models', icon: Brain },
   ];
 
   return (
@@ -49,9 +50,10 @@ const Sidebar = ({ isOpen }) => {
             <div className={`h-1 w-12 rounded-full ${darkMode ? 'bg-blue-500' : 'bg-indigo-600'}`}></div>
           </div>
 
-          <nav>
+          <nav className="flex flex-col h-[calc(100vh-180px)]">
+            {/* Active menu items */}
             <ul className="space-y-1">
-              {menuItems.map((item) => (
+              {activeMenuItems.map((item) => (
                 <li key={item.path}>
                   <NavLink
                     to={item.path}
@@ -70,6 +72,35 @@ const Sidebar = ({ isOpen }) => {
                       {item.icon}
                     </div>
                     <span className="text-sm font-medium">{item.name}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+
+            {/* Spacer */}
+            <div className="flex-grow"></div>
+
+            {/* Divider */}
+            <div className={`my-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}></div>
+
+            {/* Inactive menu items */}
+            <ul className="space-y-1">
+              {inactiveMenuItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    end={item.path === '/'}
+                    className={`flex items-center px-4 py-3 rounded-lg group transition-all duration-200
+                      ${darkMode ? 'text-gray-500 hover:bg-gray-700/20' : 'text-gray-400 hover:bg-gray-100/60'}`
+                    }
+                  >
+                    <div className="mr-3">
+                      {item.icon}
+                    </div>
+                    <span className="text-sm font-medium">{item.name}</span>
+                    <span className="ml-auto text-xs px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                      Soon
+                    </span>
                   </NavLink>
                 </li>
               ))}
