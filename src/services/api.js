@@ -281,6 +281,15 @@ export const generateChatResponse = async (messages, options = {}) => {
 // Rename listModels to getModels for consistency
 export const getModels = listModels;
 
+export const getAvailableModels = async () => {
+  try {
+    const response = await api.get('/models');
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
 // ----- Agent API -----
 
 export const listAgents = async () => {

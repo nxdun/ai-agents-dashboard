@@ -11,7 +11,7 @@ import {
   MdAccessTime,
   MdCategory
 } from 'react-icons/md';
-import { Brain, Target } from 'lucide-react'; // Using the Brain and Target icons from lucide-react
+import { Brain, Target, Home, FileCog, Goal, ServerCrash, Settings, Command, Zap, LayoutDashboard } from 'lucide-react'; // Using the Brain and Target icons from lucide-react
 
 const Sidebar = ({ isOpen }) => {
   const { darkMode } = useDarkMode();
@@ -24,6 +24,10 @@ const Sidebar = ({ isOpen }) => {
     { path: '/activities', name: 'Activities', icon: <MdAccessTime className="text-xl" /> },
     { path: '/agents', name: 'Agents', icon: <MdPerson className="text-xl" /> },
     { path: '/goaltotask', name: 'Goal to Task', icon: <Target className="text-xl" /> }, // Updated Goal to Task
+  ];
+
+  const navigation = [
+    { name: 'Models', href: '/models', icon: Brain },
   ];
 
   return (
