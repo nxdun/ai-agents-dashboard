@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UsersIcon, CpuIcon, GitBranchIcon, ActivityIcon, RefreshCwIcon, ChevronRightIcon, AlertTriangleIcon, CheckIcon } from 'lucide-react';
 import StatusCard from '../components/StatusCard';
+import HealthStatus from '../components/HealthStatus';
 import { getDashboardStats } from '../services/api';
 
 const Dashboard = () => {
@@ -227,92 +228,7 @@ const Dashboard = () => {
             </Link>
           </h3>
           
-          {isLoading ? (
-            <div className="animate-pulse space-y-4 mt-4">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
-          ) : systemHealth ? (
-            <div className="mt-6">
-              <div className="mb-6 flex items-center justify-center">
-                <div className="relative">
-                  <svg className="w-24 h-24">
-                    <circle 
-                      className="text-gray-200 dark:text-gray-700" 
-                      strokeWidth="5" 
-                      stroke="currentColor" 
-                      fill="transparent" 
-                      r="40" 
-                      cx="45" 
-                      cy="45" 
-                    />
-                    <circle 
-                      className="text-primary-500 dark:text-primary-400" 
-                      strokeWidth="5" 
-                      strokeDasharray={251.2} 
-                      strokeDashoffset={251.2 - (251.2 * systemHealth.uptime) / 100} 
-                      strokeLinecap="round" 
-                      stroke="currentColor" 
-                      fill="transparent" 
-                      r="40" 
-                      cx="45" 
-                      cy="45"
-                      style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-semibold text-gray-800 dark:text-white">{systemHealth.uptime}%</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mb-4 flex items-center">
-                <div className={`h-4 w-4 rounded-full ${
-                  systemHealth.status === 'healthy' ? 'bg-green-500' : 
-                  systemHealth.status === 'warning' ? 'bg-amber-500' : 'bg-red-500'
-                } mr-2 ${systemHealth.status === 'healthy' ? 'animate-pulse-slow' : 'animate-ping-slow'}`}></div>
-                <span className={`font-medium ${
-                  systemHealth.status === 'healthy' ? 'text-green-600 dark:text-green-400' : 
-                  systemHealth.status === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {systemHealth.status === 'healthy' ? 'All systems operational' : 
-                   systemHealth.status === 'warning' ? 'Performance degradation detected' : 'System issues detected'}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-750 p-4 rounded-md">
-                <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm hover:shadow transition-shadow">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">API Response Time</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{systemHealth.apiLatency}ms</p>
-                </div>
-                <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm hover:shadow transition-shadow">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Failed Tasks</p>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">{systemHealth.failedTasks || 0}</p>
-                </div>
-                <div className="p-3 bg-white dark:bg-gray-800 rounded-md shadow-sm hover:shadow transition-shadow">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Agents</p>
-                  <div className="flex items-end">
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{systemHealth.activeAgents || 0}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 ml-1 mb-1">/{stats.agents || 0}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="py-12 text-center">
-              <svg className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
-              </svg>
-              <p className="mt-4 text-md font-medium text-gray-900 dark:text-gray-200">No health data available</p>
-              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">System health monitoring is not configured</p>
-              <Link 
-                to="/health" 
-                className="mt-4 inline-block px-4 py-2 rounded-md text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors shadow hover:shadow-md"
-              >
-                Check system health →
-              </Link>
-            </div>
-          )}
+          <HealthStatus />
         </div>
       </div>
     </div>

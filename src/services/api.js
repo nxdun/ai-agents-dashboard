@@ -2,7 +2,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.example.com/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api/v1/';
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || 'wss://api.example.com';
 
 // API key - should be securely stored and retrieved
@@ -14,31 +14,133 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'X-API-Key': API_KEY
-  },
-  timeout: 10000
+  }
+  // Removed timeout to allow unlimited time for requests
 });
 
 // WebSocket connection
 let socket = null;
 
+// WebSocket Event Handlers
+const socketEventHandlers = new Map();
+
 // Initialize WebSocket connection
-export const initializeWebSocket = () => {
-  if (!socket) {
-    socket = io(WS_BASE_URL, {
-      extraHeaders: {
-        'X-API-Key': API_KEY
-      }
-    });
-
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
-    });
-
-    socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-    });
+export const initializeWebSocket = (options = {}) => {
+  if (socket && socket.connected) {
+    console.log('Disconnecting existing socket connection');
+    socket.disconnect();
   }
+
+  const {
+    onConnect,
+    onDisconnect,
+    onError,
+    onSubscribed,
+    onUnsubscribed,
+    onTaskUpdate,
+    onPong,
+    customOptions = {}
+  } = options;
+
+  socket = io(WS_BASE_URL, {
+    extraHeaders: {
+      'X-API-Key': API_KEY
+    },
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 20000,
+    ...customOptions
+  });
+
+  // Connection events
+  socket.on('connect', () => {
+    console.log('Connected to WebSocket server');
+    if (onConnect) onConnect(socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from WebSocket server');
+    if (onDisconnect) onDisconnect();
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('WebSocket connection error:', error);
+    if (onError) onError(error);
+  });
+
+  // Server events
+  socket.on('subscribed', (data) => {
+    if (onSubscribed) onSubscribed(data);
+  });
+
+  socket.on('unsubscribed', (data) => {
+    if (onUnsubscribed) onUnsubscribed(data);
+  });
+
+  socket.on('task_update', (data) => {
+    if (onTaskUpdate) onTaskUpdate(data);
+  });
+
+  socket.on('pong', (data) => {
+    if (onPong) onPong(data);
+  });
+
   return socket;
+};
+
+// Test WebSocket connection
+export const testWebSocketConnection = async (url) => {
+  try {
+    const response = await fetch(`${url}/ws/test`);
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`WebSocket test failed: ${error.message}`);
+  }
+};
+
+// Emit custom event
+export const emitSocketEvent = (eventName, data = {}) => {
+  if (!socket || !socket.connected) {
+    throw new Error('WebSocket not connected');
+  }
+  socket.emit(eventName, data);
+};
+
+// Subscribe to task updates
+export const subscribeToTask = (taskId) => {
+  if (!socket || !socket.connected) {
+    throw new Error('WebSocket not connected');
+  }
+  socket.emit('subscribe', { task_id: taskId });
+};
+
+// Unsubscribe from task updates
+export const unsubscribeFromTask = (taskId) => {
+  if (!socket || !socket.connected) {
+    throw new Error('WebSocket not connected');
+  }
+  socket.emit('unsubscribe', { task_id: taskId });
+};
+
+// Get socket connection status
+export const getSocketStatus = () => {
+  return {
+    initialized: !!socket,
+    connected: socket?.connected || false,
+    id: socket?.id
+  };
+};
+
+// Disconnect WebSocket
+export const disconnectWebSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 };
 
 // Error handler
@@ -114,7 +216,16 @@ export const triggerWorkflow = async (workflowId, parameters = {}) => {
 
 export const getWorkflowStatus = async (workflowId) => {
   try {
-    const response = await api.get(`/workflows/${workflowId}/status`);
+    const response = await api.get(`/workflows/${workflowId}`);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const getWorkflowTasks = async (workflowId) => {
+  try {
+    const response = await api.get(`/workflows/${workflowId}/tasks`);
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -332,5 +443,32 @@ export const getDashboardStats = async () => {
       recentWorkflows: [],
       systemHealth: null
     };
+  }
+};
+
+// ----- Goal to Task API -----
+
+export const convertGoalToTasks = async (goalData) => {
+  try {
+    const response = await api.post('/workflows/goaltotask', {
+      goal: goalData.goal,
+      context: goalData.context
+      // No timeout parameter - allowing unlimited time
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+export const executeTaskWorkflow = async (workflowId, options = {}) => {
+  try {
+    const response = await api.post(`/workflows/${workflowId}/execute`, {
+      ...options
+      // No timeout parameter - allowing unlimited time
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
   }
 };

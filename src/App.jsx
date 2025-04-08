@@ -6,6 +6,7 @@ import Agents from './pages/Agents';
 import Workflows from './pages/Workflows';
 import Activities from './pages/Activities';
 import Health from './pages/Health';
+import GoalToTask from './pages/GoalToTask';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import LoadingIndicator from './components/LoadingIndicator';
@@ -60,6 +61,7 @@ const AnimatedRoutes = () => {
           <Route path="/workflows" element={<Workflows />} />
           <Route path="/activities" element={<Activities />} />
           <Route path="/health" element={<Health />} />
+          <Route path="/goaltotask" element={<GoalToTask />} />
         </Routes>
       </div>
     </>
